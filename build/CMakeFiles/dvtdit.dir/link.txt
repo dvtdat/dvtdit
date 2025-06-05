@@ -1,1 +1,0 @@
-/opt/homebrew/Cellar/gcc/14.2.0_1/bin/aarch64-apple-darwin24-g++-14 -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/dvtdit.dir/src/commands/add.cpp.o CMakeFiles/dvtdit.dir/src/commands/init.cpp.o CMakeFiles/dvtdit.dir/src/main.cpp.o -o /Users/dvtdat/Work/dvtdit/bin/dvtdit
