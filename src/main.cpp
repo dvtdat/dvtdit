@@ -19,6 +19,12 @@ int main(int argc, char* argv[]) {
     handleInit();
   } else if (command == "add") {
     handleAdd(options);
+  } else if (command == "commit") {
+    // TODO
+  } else if (command == "log") {
+    // TODO
+  } else if (command == "status") {
+    // TODO
   } else {
     std::cerr << "Unknown command: " << command << "\n";
     std::cerr << "Run 'dit help' for a list of commands.\n";
