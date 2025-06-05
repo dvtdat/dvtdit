@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/Users/dvtdat/Work/dvtdit/build",
+  "command": "/opt/homebrew/Cellar/gcc/14.2.0_1/bin/aarch64-apple-darwin24-g++-14   -g -std=gnu++17 -arch arm64 -o CMakeFiles/dvtdit.dir/src/commands/add.cpp.o -c /Users/dvtdat/Work/dvtdit/src/commands/add.cpp",
+  "file": "/Users/dvtdat/Work/dvtdit/src/commands/add.cpp",
+  "output": "CMakeFiles/dvtdit.dir/src/commands/add.cpp.o"
+},
+{
+  "directory": "/Users/dvtdat/Work/dvtdit/build",
+  "command": "/opt/homebrew/Cellar/gcc/14.2.0_1/bin/aarch64-apple-darwin24-g++-14   -g -std=gnu++17 -arch arm64 -o CMakeFiles/dvtdit.dir/src/commands/init.cpp.o -c /Users/dvtdat/Work/dvtdit/src/commands/init.cpp",
+  "file": "/Users/dvtdat/Work/dvtdit/src/commands/init.cpp",
+  "output": "CMakeFiles/dvtdit.dir/src/commands/init.cpp.o"
+},
+{
+  "directory": "/Users/dvtdat/Work/dvtdit/build",
+  "command": "/opt/homebrew/Cellar/gcc/14.2.0_1/bin/aarch64-apple-darwin24-g++-14   -g -std=gnu++17 -arch arm64 -o CMakeFiles/dvtdit.dir/src/main.cpp.o -c /Users/dvtdat/Work/dvtdit/src/main.cpp",
+  "file": "/Users/dvtdat/Work/dvtdit/src/main.cpp",
+  "output": "CMakeFiles/dvtdit.dir/src/main.cpp.o"
+}
+]

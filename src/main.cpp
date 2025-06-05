@@ -13,11 +13,11 @@ int main(int argc, char* argv[]) {
   char** options = argv + 2;
   int optionsCount = argc - 2;
 
-  if (command == "init") {
+  if (strcmp(command, "init") == 0) {
     handleInit();
   } else {
     std::cerr << "Unknown command: " << command << "\n";
-    std::cerr << "Run 'dit help' for a list of available commands.\n";
+    std::cerr << "Run 'dit help' for a list of commands.\n";
     return 1;
   }
 

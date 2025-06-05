@@ -1,0 +1,3 @@
+/Users/dvtdat/Work/dvtdit/build/CMakeFiles/dvtdit.dir
+/Users/dvtdat/Work/dvtdit/build/CMakeFiles/edit_cache.dir
+/Users/dvtdat/Work/dvtdit/build/CMakeFiles/rebuild_cache.dir
