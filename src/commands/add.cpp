@@ -7,10 +7,10 @@
 #include "../utils/sha1.h"
 
 std::string readFile(const std::string& path) {
-    std::ifstream in(path, std::ios::binary);
-    std::ostringstream contents;
-    contents << in.rdbuf();
-    return contents.str();
+  std::ifstream in(path, std::ios::binary);
+  std::ostringstream contents;
+  contents << in.rdbuf();
+  return contents.str();
 }
 
 std::string convertToBlob(std::string data) {
