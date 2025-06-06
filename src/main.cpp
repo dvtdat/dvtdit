@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
     // TODO
   } else if (command == "status") {
     // TODO
+  } else if (command == "help") {
+    // TODO
   } else {
     std::cerr << "Unknown command: " << command << "\n";
     std::cerr << "Run 'dit help' for a list of commands.\n";
