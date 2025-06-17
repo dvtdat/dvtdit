@@ -55,84 +55,78 @@ struct FileMetadata {
     : st(statData), sha1(sha1Hash), path(filePath) {}
 };
 
-// std::map<std::string, FileMetadata> readIndex() {
-//   std::map<std::string, FileMetadata> entries;
+std::map<std::string, FileMetadata> readIndex() {
+  std::map<std::string, FileMetadata> entries;
 
-//   std::ifstream in(".dit/index", std::ios::binary);
-//   if (!in) {
-//     std::cerr << "Failed to open .dit/index for reading.\n";
-//     return entries;
-//   }
+  std::ifstream in(".dit/index", std::ios::binary);
+  if (!in) {
+    return entries;
+  }
 
-//   char signature[4];
-//   in.read(signature, 4);
-//   if (std::string(signature, 4) != "DIRC") {
-//     std::cerr << "Invalid index file signature.\n";
-//     return entries;
-//   }
+  char signature[4];
+  in.read(signature, 4);
+  if (std::string(signature, 4) != "DIRC") {
+    return entries;
+  }
 
-//   uint32_t version;
-//   in.read(reinterpret_cast<char*>(&version), 4);
-//   version = ntohl(version);
-//   if (version != 2) {
-//       std::cerr << "Unsupported index version: " << version << "\n";
-//       return entries;
-//   }
+  uint32_t version;
+  in.read(reinterpret_cast<char*>(&version), 4);
+  version = ntohl(version);
+  if (version != 2) {
+      std::cerr << "Unsupported index version: " << version << "\n";
+      return entries;
+  }
 
-//   uint32_t entryCount;
-//   in.read(reinterpret_cast<char*>(&entryCount), 4);
-//   entryCount = ntohl(entryCount);
+  uint32_t entryCount;
+  in.read(reinterpret_cast<char*>(&entryCount), 4);
+  entryCount = ntohl(entryCount);
 
-//   for (uint32_t i = 0; i < entryCount; ++i) {
-//     FileMetadata entry;
-//     struct stat &st = entry.st;
+  for (uint32_t i = 0; i < entryCount; ++i) {
+    FileMetadata entry;
+    struct stat &st = entry.st;
 
-//     uint32_t tmp;
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ctime = ntohl(tmp);
-//     in.ignore(4);  // ctime_nsec (ignored)
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mtime = ntohl(tmp);
-//     in.ignore(4);  // mtime_nsec (ignored)
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_dev = ntohl(tmp);
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ino = ntohl(tmp);
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mode = ntohl(tmp);
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_uid = ntohl(tmp);
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_gid = ntohl(tmp);
-//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_size = ntohl(tmp);
+    uint32_t tmp;
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ctime = ntohl(tmp);
+    in.ignore(4);  
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mtime = ntohl(tmp);
+    in.ignore(4); 
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_dev = ntohl(tmp);
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ino = ntohl(tmp);
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mode = ntohl(tmp);
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_uid = ntohl(tmp);
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_gid = ntohl(tmp);
+    in.read(reinterpret_cast<char*>(&tmp), 4); st.st_size = ntohl(tmp);
 
-//     // Read SHA1 (20 bytes binary)
-//     char sha1_bin[20];
-//     in.read(sha1_bin, 20);
+   
+    char sha1_bin[20];
+    in.read(sha1_bin, 20);
 
-//     std::ostringstream sha1_hex;
-//     for (int i = 0; i < 20; ++i) {
-//       sha1_hex << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(sha1_bin[i]));
-//     }
-//     entry.sha1 = sha1_hex.str();
+    std::ostringstream sha1_hex;
+    for (int i = 0; i < 20; ++i) {
+      sha1_hex << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(sha1_bin[i]));
+    }
+    entry.sha1 = sha1_hex.str();
 
-//     // Read flags (file name length in lower 12 bits)
-//     uint16_t flags;
-//     in.read(reinterpret_cast<char*>(&flags), 2);
-//     flags = ntohs(flags);
-//     uint16_t nameLength = flags & 0x0FFF;
+    uint16_t flags;
+    in.read(reinterpret_cast<char*>(&flags), 2);
+    flags = ntohs(flags);
+    uint16_t nameLength = flags & 0x0FFF;
 
-//     // Read path
-//     std::string path(nameLength, '\0');
-//     in.read(&path[0], nameLength);
-//     entry.path = path;
+    std::string path(nameLength, '\0');
+    in.read(&path[0], nameLength);
+    entry.path = path;
 
-//     in.ignore(1); // null terminator
+    in.ignore(1); 
 
-//     // Skip padding to next 8-byte boundary
-//     int entryLength = 62 + nameLength + 1;
-//     int padding = (8 - (entryLength % 8)) % 8;
-//     in.ignore(padding);
+    int entryLength = 62 + nameLength + 1;
+    int padding = (8 - (entryLength % 8)) % 8;
+    in.ignore(padding);
 
-//     // Store in map
-//     entries[path] = entry;
-//   }
+    entries[path] = entry;
+  }
 
-//   return entries;
-// }
+  return entries;
+}
 
 void writeIndex(const std::map<std::string, FileMetadata>& entries) {
   std::ofstream index(".dit/index", std::ios::binary);
@@ -204,7 +198,7 @@ void addChecksum() {
 }
 
 void handleAdd(const std::vector<std::string>& files) {
-  std::map<std::string, FileMetadata> indexes;
+  std::map<std::string, FileMetadata> indexes = readIndex();
 
   for (const std::string& filename : files) {
     std::string fileData = readFile(filename);
@@ -212,6 +206,15 @@ void handleAdd(const std::vector<std::string>& files) {
     std::string hashedData = hashDataSHA1(fileBlob);
     struct stat st;
     stat(filename.c_str(), &st);
+
+    auto it = indexes.find(filename);
+    if (it != indexes.end()) {
+      const FileMetadata& existingEntry = it->second;
+      if (st.st_mtime == existingEntry.st.st_mtime && hashedData == existingEntry.sha1) {
+        continue;
+      }
+    }
+
     FileMetadata metadata(st, hashedData, filename);
     indexes[filename] = metadata;
   }
