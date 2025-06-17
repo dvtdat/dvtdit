@@ -80,34 +80,37 @@ void handleAdd(const std::vector<std::string>& files) {
     stat(file.c_str(), &st);
 
     // write time + ctime_nsec
-    write_uint32(index, st.st_ctime);
-    write_uint32(index, 0);
+    write_uint32(index, st.st_ctime);           // 4 bytes - 32 bits
+    write_uint32(index, 0);                     // 4 bytes - 32 bits
     
     // Write mtime + mtime_nsec
-    write_uint32(index, st.st_mtime);
-    write_uint32(index, 0);
+    write_uint32(index, st.st_mtime);           // 4 bytes - 32 bits 
+    write_uint32(index, 0);                     // 4 bytes - 32 bits  
 
-    write_uint32(index, st.st_dev);
-    write_uint32(index, st.st_ino);
-    write_uint32(index, st.st_mode);
-    write_uint32(index, st.st_uid);
-    write_uint32(index, st.st_gid);
-    write_uint32(index, st.st_size);
+    write_uint32(index, st.st_dev);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_ino);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_mode);            // 4 bytes - 32 bits 
 
-    // Write binary SHA1 (20 bytes)
-    writeSHA1(index, hashedData);
+    write_uint32(index, st.st_uid);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_gid);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
 
-    // Flags (12-bit name length maxed to 0xFFF)
+    // Write binary SHA1
+    writeSHA1(index, hashedData);               // 20 bytes - 80 bits
+
+    // Flags (8-bit name length maxed to 0xFFF)
     uint16_t flags = std::min(static_cast<uint16_t>(file.length()), static_cast<uint16_t>(0xFFF));
-    write_uint16(index, flags);
+    write_uint16(index, flags);                 // 2 bytes - 8 bits
 
     // Write path (not null-padded yet)
-    index.write(file.c_str(), file.length());
-    index.put('\0');
+    index.write(file.c_str(), file.length());   // dynamic number of bytes based on the file name
+
+    // Null Terminator
+    index.put('\0');                            // 1 bytes - 4 bits
     
     // Add 8-byte padding from start of entry to align
-    int entryLength = 62 + 20 + 2 + file.length() + 1;
-    int padding = (8 - (entryLength % 8)) % 8;
+    int entryLength = 62 + file.length() + 1;
+    int padding = 8 - (entryLength + 8) % 8;
     for (int i = 0; i < padding; ++i) {
       index.put('\0');
     }
