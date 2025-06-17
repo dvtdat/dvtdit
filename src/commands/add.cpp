@@ -111,7 +111,7 @@ void handleAdd(const std::vector<std::string>& files) {
     // Add 8-byte padding from start of entry to align
     int entryLength = 62 + file.length() + 1;
     int padding = 8 - (entryLength + 8) % 8;
-    for (int i = 0; i < padding; ++i) {
+    for (int i = 0; i < padding % 8; ++i) {
       index.put('\0');
     }
   }
