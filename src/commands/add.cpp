@@ -45,9 +45,148 @@ void writeSHA1(std::ofstream &out, const std::string& hash) {
   }
 };
 
-// std::map<std::string, std::string> readIndex() {
- 
+struct FileMetadata {
+  struct stat st;
+  std::string sha1;
+  std::string path;
+
+  FileMetadata() {}
+  FileMetadata(const struct stat& statData, const std::string& sha1Hash, const std::string& filePath)
+    : st(statData), sha1(sha1Hash), path(filePath) {}
+};
+
+// std::map<std::string, FileMetadata> readIndex() {
+//   std::map<std::string, FileMetadata> entries;
+
+//   std::ifstream in(".dit/index", std::ios::binary);
+//   if (!in) {
+//     std::cerr << "Failed to open .dit/index for reading.\n";
+//     return entries;
+//   }
+
+//   char signature[4];
+//   in.read(signature, 4);
+//   if (std::string(signature, 4) != "DIRC") {
+//     std::cerr << "Invalid index file signature.\n";
+//     return entries;
+//   }
+
+//   uint32_t version;
+//   in.read(reinterpret_cast<char*>(&version), 4);
+//   version = ntohl(version);
+//   if (version != 2) {
+//       std::cerr << "Unsupported index version: " << version << "\n";
+//       return entries;
+//   }
+
+//   uint32_t entryCount;
+//   in.read(reinterpret_cast<char*>(&entryCount), 4);
+//   entryCount = ntohl(entryCount);
+
+//   for (uint32_t i = 0; i < entryCount; ++i) {
+//     FileMetadata entry;
+//     struct stat &st = entry.st;
+
+//     uint32_t tmp;
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ctime = ntohl(tmp);
+//     in.ignore(4);  // ctime_nsec (ignored)
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mtime = ntohl(tmp);
+//     in.ignore(4);  // mtime_nsec (ignored)
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_dev = ntohl(tmp);
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_ino = ntohl(tmp);
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_mode = ntohl(tmp);
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_uid = ntohl(tmp);
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_gid = ntohl(tmp);
+//     in.read(reinterpret_cast<char*>(&tmp), 4); st.st_size = ntohl(tmp);
+
+//     // Read SHA1 (20 bytes binary)
+//     char sha1_bin[20];
+//     in.read(sha1_bin, 20);
+
+//     std::ostringstream sha1_hex;
+//     for (int i = 0; i < 20; ++i) {
+//       sha1_hex << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(sha1_bin[i]));
+//     }
+//     entry.sha1 = sha1_hex.str();
+
+//     // Read flags (file name length in lower 12 bits)
+//     uint16_t flags;
+//     in.read(reinterpret_cast<char*>(&flags), 2);
+//     flags = ntohs(flags);
+//     uint16_t nameLength = flags & 0x0FFF;
+
+//     // Read path
+//     std::string path(nameLength, '\0');
+//     in.read(&path[0], nameLength);
+//     entry.path = path;
+
+//     in.ignore(1); // null terminator
+
+//     // Skip padding to next 8-byte boundary
+//     int entryLength = 62 + nameLength + 1;
+//     int padding = (8 - (entryLength % 8)) % 8;
+//     in.ignore(padding);
+
+//     // Store in map
+//     entries[path] = entry;
+//   }
+
+//   return entries;
 // }
+
+void writeIndex(const std::map<std::string, FileMetadata>& entries) {
+  std::ofstream index(".dit/index", std::ios::binary);
+  if (!index) {
+    std::cerr << "Failed to open .dit/index for writing.\n";
+    return;
+  }
+  
+  index.write("DIRC", 4);                       // File signature
+  write_uint32(index, 2);                       // Index version
+  write_uint32(index, entries.size());          // Number of entries
+
+  for (const auto& [path, entry] : entries) {
+    const struct stat &st = entry.st;
+
+    // write ctime + ctime_nsec
+    write_uint32(index, st.st_ctime);           // 4 bytes - 32 bits
+    write_uint32(index, 0);                     // 4 bytes - 32 bits
+    
+    // Write mtime + mtime_nsec
+    write_uint32(index, st.st_mtime);           // 4 bytes - 32 bits 
+    write_uint32(index, 0);                     // 4 bytes - 32 bits  
+
+    write_uint32(index, st.st_dev);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_ino);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_mode);            // 4 bytes - 32 bits 
+
+    write_uint32(index, st.st_uid);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_gid);             // 4 bytes - 32 bits 
+    write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
+
+    // Write binary SHA1
+    writeSHA1(index, entry.sha1);               // 20 bytes - 80 bits
+
+    // Flags (lower 12 bits = file name length, upper 4 bits = 0)
+    uint16_t flags = std::min(static_cast<uint16_t>(path.length()), static_cast<uint16_t>(0xFFF));
+    write_uint16(index, flags);
+
+    // Path (not null-padded)
+    index.write(path.c_str(), path.length());
+
+    // Null terminator
+    index.put('\0');
+
+    // Add 8-byte padding from start of entry to align
+    int entryLength = 62 + path.length() + 1;
+    int padding = (8 - entryLength % 8) % 8;
+    for (int i = 0; i < padding; ++i) {
+      index.put('\0');
+    }
+  }
+
+  index.close();
+}
 
 void addChecksum() {
   std::string indexFileData = readFile(".dit/index");
@@ -65,57 +204,18 @@ void addChecksum() {
 }
 
 void handleAdd(const std::vector<std::string>& files) {
-  std::ofstream index(".dit/index", std::ios::binary);
+  std::map<std::string, FileMetadata> indexes;
 
-  index.write("DIRC", 4);
-  write_uint32(index, 2); // version
-  write_uint32(index, files.size()); // number of entries
-
-  for (const std::string& file : files) {
-    std::string fileData = readFile(file);
+  for (const std::string& filename : files) {
+    std::string fileData = readFile(filename);
     std::string fileBlob = convertToBlob(fileData);
     std::string hashedData = hashDataSHA1(fileBlob);
-
     struct stat st;
-    stat(file.c_str(), &st);
-
-    // write time + ctime_nsec
-    write_uint32(index, st.st_ctime);           // 4 bytes - 32 bits
-    write_uint32(index, 0);                     // 4 bytes - 32 bits
-    
-    // Write mtime + mtime_nsec
-    write_uint32(index, st.st_mtime);           // 4 bytes - 32 bits 
-    write_uint32(index, 0);                     // 4 bytes - 32 bits  
-
-    write_uint32(index, st.st_dev);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_ino);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_mode);            // 4 bytes - 32 bits 
-
-    write_uint32(index, st.st_uid);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_gid);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
-
-    // Write binary SHA1
-    writeSHA1(index, hashedData);               // 20 bytes - 80 bits
-
-    // Flags (8-bit name length maxed to 0xFFF)
-    uint16_t flags = std::min(static_cast<uint16_t>(file.length()), static_cast<uint16_t>(0xFFF));
-    write_uint16(index, flags);                 // 2 bytes - 8 bits
-
-    // Write path (not null-padded yet)
-    index.write(file.c_str(), file.length());   // dynamic number of bytes based on the file name
-
-    // Null Terminator
-    index.put('\0');                            // 1 bytes - 4 bits
-    
-    // Add 8-byte padding from start of entry to align
-    int entryLength = 62 + file.length() + 1;
-    int padding = 8 - (entryLength + 8) % 8;
-    for (int i = 0; i < padding % 8; ++i) {
-      index.put('\0');
-    }
+    stat(filename.c_str(), &st);
+    FileMetadata metadata(st, hashedData, filename);
+    indexes[filename] = metadata;
   }
 
-  index.close();
+  writeIndex(indexes);
   addChecksum();
 }
