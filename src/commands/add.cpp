@@ -197,7 +197,7 @@ void addChecksum() {
   index.close();
 }
 
-void handleAdd(const std::vector<std::string>& files) {
+void handleAdd(const std::vector<std::string>& files, const std::vector<std::string>& flags) {
   std::map<std::string, FileMetadata> indexes = readIndex();
 
   for (const std::string& filename : files) {
