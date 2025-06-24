@@ -6,8 +6,10 @@
 #include <map>
 #include <arpa/inet.h>
 #include <sys/stat.h>
+#include <iomanip> 
 
-#include "../utils/sha1.h"
+#include "../utils/types.h"
+#include "../utils/hash.h"
 
 std::string readFile(const std::string& path) {
   std::ifstream in(path, std::ios::binary);
@@ -20,13 +22,6 @@ std::string convertToBlob(std::string data) {
   return "blob " + std::to_string(data.size()) + '\0' + data;
 }
 
-std::string hashDataSHA1(std::string data) {
-  void *hashedData = hashing::sha1::hash(data);
-  std::string hexHashedData = hashing::sha1::sig2hex(hashedData);
-  delete[] static_cast<uint8_t *>(hashedData);
-  return hexHashedData;
-}
-
 void write_uint32(std::ofstream &out, uint32_t value) {
   uint32_t be = htonl(value); 
   out.write(reinterpret_cast<char*>(&be), sizeof(be));
@@ -35,24 +30,6 @@ void write_uint32(std::ofstream &out, uint32_t value) {
 void write_uint16(std::ofstream &out, uint16_t value) {
   uint16_t be = htons(value);
   out.write(reinterpret_cast<char*>(&be), sizeof(be));
-};
-
-void writeSHA1(std::ofstream &out, const std::string& hash) {
-  for (int i = 0; i < 40; i += 2) {
-      std::string byteStr = hash.substr(i, 2);
-      uint8_t byte = static_cast<uint8_t>(std::stoi(byteStr, nullptr, 16));
-      out.write(reinterpret_cast<char*>(&byte), 1);
-  }
-};
-
-struct FileMetadata {
-  struct stat st;
-  std::string sha1;
-  std::string path;
-
-  FileMetadata() {}
-  FileMetadata(const struct stat& statData, const std::string& sha1Hash, const std::string& filePath)
-    : st(statData), sha1(sha1Hash), path(filePath) {}
 };
 
 std::map<std::string, FileMetadata> readIndex() {
@@ -159,7 +136,7 @@ void writeIndex(const std::map<std::string, FileMetadata>& entries) {
     write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
 
     // Write binary SHA1
-    writeSHA1(index, entry.sha1);               // 20 bytes - 80 bits
+    hash::writeSHA1(index, entry.sha1);               // 20 bytes - 80 bits
 
     // Flags (lower 12 bits = file name length, upper 4 bits = 0)
     uint16_t flags = std::min(static_cast<uint16_t>(path.length()), static_cast<uint16_t>(0xFFF));
@@ -184,7 +161,7 @@ void writeIndex(const std::map<std::string, FileMetadata>& entries) {
 
 void addChecksum() {
   std::string indexFileData = readFile(".dit/index");
-  std::string hashedIndexFileData = hashDataSHA1(indexFileData);
+  std::string hashedIndexFileData = hash::hashDataSHA1(indexFileData);
 
   std::ofstream index(".dit/index", std::ios::app | std::ios::binary);
 
@@ -203,7 +180,7 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
   for (const std::string& filename : files) {
     std::string fileData = readFile(filename);
     std::string fileBlob = convertToBlob(fileData);
-    std::string hashedData = hashDataSHA1(fileBlob);
+    std::string hashedData = hash::hashDataSHA1(fileBlob);
     struct stat st;
     stat(filename.c_str(), &st);
 

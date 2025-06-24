@@ -4,7 +4,7 @@
 
 void handleLsFiles(const std::vector<std::string>& flags) {
   if ((int)flags.size() == 0) {
-    flags.push_back("--cached");
+    // flags.push_back("--cached");
   }
 
   for (std::string flag : flags) {

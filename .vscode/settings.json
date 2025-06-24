@@ -53,7 +53,10 @@
     "algorithm": "cpp",
     "fstream": "cpp",
     "iomanip": "cpp",
-    "chrono": "cpp"
+    "chrono": "cpp",
+    "format": "cpp",
+    "system_error": "cpp",
+    "text_encoding": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
