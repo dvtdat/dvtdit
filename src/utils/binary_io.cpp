@@ -7,11 +7,11 @@
 namespace binary_io {
   void write_uint32(std::ofstream &out, uint32_t value) {
     uint32_t be = htonl(value); 
-    out.write(reinterpret_cast<char*>(&be), sizeof(be));
+    out.write(reinterpret_cast<const char*>(&be), sizeof(uint32_t));
   };
 
   void write_uint16(std::ofstream &out, uint16_t value) {
     uint16_t be = htons(value);
-    out.write(reinterpret_cast<char*>(&be), sizeof(be));
+    out.write(reinterpret_cast<const char*>(&be), sizeof(uint16_t));
   };
 }

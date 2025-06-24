@@ -10,13 +10,7 @@
 #include "../utils/types.h"
 #include "../utils/hash.h"
 #include "../utils/binary_io.h"
-
-std::string readFile(const std::string& path) {
-  std::ifstream in(path, std::ios::binary);
-  std::ostringstream contents;
-  contents << in.rdbuf();
-  return contents.str();
-}
+#include "../utils/file_io.h"
 
 std::string convertToBlob(std::string data) {
   return "blob " + std::to_string(data.size()) + '\0' + data;
@@ -130,7 +124,7 @@ void writeIndex(const std::map<std::string, FileMetadata>& entries) {
 
     // Flags (lower 12 bits = file name length, upper 4 bits = 0)
     uint16_t flags = std::min(static_cast<uint16_t>(path.length()), static_cast<uint16_t>(0xFFF));
-    binary_io::write_uint32(index, flags);
+    binary_io::write_uint16(index, flags);
 
     // Path (not null-padded)
     index.write(path.c_str(), path.length());
@@ -150,7 +144,7 @@ void writeIndex(const std::map<std::string, FileMetadata>& entries) {
 }
 
 void addChecksum() {
-  std::string indexFileData = readFile(".dit/index");
+  std::string indexFileData = file_io::readFile(".dit/index");
   std::string hashedIndexFileData = hash::hashDataSHA1(indexFileData);
 
   std::ofstream index(".dit/index", std::ios::app | std::ios::binary);
@@ -168,7 +162,7 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
   std::map<std::string, FileMetadata> indexes = readIndex();
 
   for (const std::string& filename : files) {
-    std::string fileData = readFile(filename);
+    std::string fileData = file_io::readFile(filename);
     std::string fileBlob = convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
     struct stat st;

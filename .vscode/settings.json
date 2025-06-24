@@ -60,7 +60,8 @@
     "charconv": "cpp",
     "functional": "cpp",
     "type_traits": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "filesystem": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
