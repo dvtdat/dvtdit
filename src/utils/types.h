@@ -14,4 +14,4 @@ struct FileMetadata {
     : st(statData), sha1(sha1Hash), path(filePath) {}
 };
 
-#endif
+#endif // TYPES_H
