@@ -5,10 +5,9 @@
 
 void handleInit();
 void handleAdd(const std::vector<std::string>& files, const std::vector<std::string>& flags);
-void handleLsFiles(const std::vector<std::string> &flags);
+void handleLsFiles(std::vector<std::string> &flags);
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cout << "Usage: dit <command> [options]\n";
     std::cout << "Try 'dit help' for a list of commands.\n";
