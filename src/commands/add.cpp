@@ -4,12 +4,12 @@
 #include <sstream>
 #include <string>
 #include <map>
-#include <arpa/inet.h>
 #include <sys/stat.h>
 #include <iomanip> 
 
 #include "../utils/types.h"
 #include "../utils/hash.h"
+#include "../utils/binary_io.h"
 
 std::string readFile(const std::string& path) {
   std::ifstream in(path, std::ios::binary);
@@ -21,16 +21,6 @@ std::string readFile(const std::string& path) {
 std::string convertToBlob(std::string data) {
   return "blob " + std::to_string(data.size()) + '\0' + data;
 }
-
-void write_uint32(std::ofstream &out, uint32_t value) {
-  uint32_t be = htonl(value); 
-  out.write(reinterpret_cast<char*>(&be), sizeof(be));
-};
-
-void write_uint16(std::ofstream &out, uint16_t value) {
-  uint16_t be = htons(value);
-  out.write(reinterpret_cast<char*>(&be), sizeof(be));
-};
 
 std::map<std::string, FileMetadata> readIndex() {
   std::map<std::string, FileMetadata> entries;
@@ -112,35 +102,35 @@ void writeIndex(const std::map<std::string, FileMetadata>& entries) {
     return;
   }
   
-  index.write("DIRC", 4);                       // File signature
-  write_uint32(index, 2);                       // Index version
-  write_uint32(index, entries.size());          // Number of entries
+  index.write("DIRC", 4);                                  // File signature
+  binary_io::write_uint32(index, 2);                       // Index version
+  binary_io::write_uint32(index, entries.size());          // Number of entries
 
   for (const auto& [path, entry] : entries) {
     const struct stat &st = entry.st;
 
     // write ctime + ctime_nsec
-    write_uint32(index, st.st_ctime);           // 4 bytes - 32 bits
-    write_uint32(index, 0);                     // 4 bytes - 32 bits
+    binary_io::write_uint32(index, st.st_ctime);           // 4 bytes - 32 bits
+    binary_io::write_uint32(index, 0);                     // 4 bytes - 32 bits
     
     // Write mtime + mtime_nsec
-    write_uint32(index, st.st_mtime);           // 4 bytes - 32 bits 
-    write_uint32(index, 0);                     // 4 bytes - 32 bits  
+    binary_io::write_uint32(index, st.st_mtime);           // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, 0);                     // 4 bytes - 32 bits  
 
-    write_uint32(index, st.st_dev);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_ino);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_mode);            // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_dev);             // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_ino);             // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_mode);            // 4 bytes - 32 bits 
 
-    write_uint32(index, st.st_uid);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_gid);             // 4 bytes - 32 bits 
-    write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_uid);             // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_gid);             // 4 bytes - 32 bits 
+    binary_io::write_uint32(index, st.st_size);            // 4 bytes - 32 bits 
 
     // Write binary SHA1
-    hash::writeSHA1(index, entry.sha1);               // 20 bytes - 80 bits
+    hash::writeSHA1(index, entry.sha1);                    // 20 bytes - 80 bits
 
     // Flags (lower 12 bits = file name length, upper 4 bits = 0)
     uint16_t flags = std::min(static_cast<uint16_t>(path.length()), static_cast<uint16_t>(0xFFF));
-    write_uint16(index, flags);
+    binary_io::write_uint32(index, flags);
 
     // Path (not null-padded)
     index.write(path.c_str(), path.length());

@@ -56,7 +56,11 @@
     "chrono": "cpp",
     "format": "cpp",
     "system_error": "cpp",
-    "text_encoding": "cpp"
+    "text_encoding": "cpp",
+    "charconv": "cpp",
+    "functional": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
