@@ -11,10 +11,7 @@
 #include "../utils/hash.h"
 #include "../utils/file_io.h"
 #include "../utils/index_io.h"
-
-std::string convertToBlob(std::string data) {
-  return "blob " + std::to_string(data.size()) + '\0' + data;
-}
+#include "../utils/blob.h"
 
 void addChecksum() {
   std::string indexFileData = file_io::readFile(".dit/index");
@@ -36,7 +33,7 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
 
   for (const std::string& filename : files) {
     std::string fileData = file_io::readFile(filename);
-    std::string fileBlob = convertToBlob(fileData);
+    std::string fileBlob = blob::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
     struct stat st;
     stat(filename.c_str(), &st);
@@ -49,7 +46,7 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
       }
     }
 
-    FileMetadata metadata(st, hashedData, filename);
+    FileMetadata metadata(st, hashedData, filename, 0);
     indexes[filename] = metadata;
   }
 

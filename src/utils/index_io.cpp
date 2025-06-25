@@ -68,6 +68,7 @@ namespace index_io {
       uint16_t flags;
       in.read(reinterpret_cast<char*>(&flags), 2);
       flags = ntohs(flags);
+      entry.flags = flags;
       uint16_t nameLength = flags & 0x0FFF;
 
       std::string path(nameLength, '\0');
@@ -120,6 +121,7 @@ namespace index_io {
       hash::writeSHA1(index, entry.sha1);                    // 20 bytes - 80 bits
 
       // Flags (lower 12 bits = file name length, upper 4 bits = 0)
+      // TODO: update upper 4 bits with custom flag, which in clude stage version (0, 1, 2, 3)
       uint16_t flags = std::min(static_cast<uint16_t>(path.length()), static_cast<uint16_t>(0xFFF));
       binary_io::write_uint16(index, flags);
 
