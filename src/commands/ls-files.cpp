@@ -15,7 +15,7 @@ bool hasFlag(std::vector<std::string>& flags, std::string flag) {
   return std::find(flags.begin(), flags.end(), flag) != flags.end();
 }
 
-bool isFileExists(const std::string& path) {
+bool isFileExisted(const std::string& path) {
   std::filesystem::path repoRoot = std::filesystem::current_path(); 
   return std::filesystem::exists(std::filesystem::path(repoRoot) / path);
 }
@@ -76,13 +76,13 @@ void handleLsFiles(std::vector<std::string>& flags) {
       shouldShow = true;
     }
 
-    if (showDeleted && !isFileExists(entry.path)) {
+    if (showDeleted && !isFileExisted(entry.path)) {
       shouldShow = true;
     }
 
-    // if (showModified) {
-    //   shouldShow = true;
-    // }
+    if (showModified && isFileExisted(entry.path) && isFileModified(entry)) {
+      shouldShow = true;
+    }
 
     if (!shouldShow) {
       continue;
