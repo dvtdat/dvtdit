@@ -7,4 +7,4 @@ namespace binary_io {
   void write_uint16(std::ofstream &out, uint16_t value);
 }
 
-#endif
+#endif // BINARY_IO_H

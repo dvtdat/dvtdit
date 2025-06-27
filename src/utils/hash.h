@@ -6,4 +6,4 @@ namespace hash {
   void writeSHA1(std::ofstream &out, const std::string &hash);
 }
 
-#endif
+#endif // HASH_H
