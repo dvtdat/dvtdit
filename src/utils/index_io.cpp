@@ -7,10 +7,10 @@
 #include <sys/stat.h>
 #include <iomanip> 
 
-#include "../utils/types.h"
-#include "../utils/hash.h"
-#include "../utils/binary_io.h"
-#include "../utils/file_io.h"
+#include "types.h"
+#include "hash.h"
+#include "binary_io.h"
+#include "file_utils.h"
 
 namespace index_io {
   std::map<std::string, FileMetadata> readIndex() {

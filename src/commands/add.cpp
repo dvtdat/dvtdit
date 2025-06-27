@@ -9,12 +9,12 @@
 
 #include "../utils/types.h"
 #include "../utils/hash.h"
-#include "../utils/file_io.h"
+#include "../utils/file_utils.h"
 #include "../utils/index_io.h"
 #include "../utils/blob.h"
 
 void addChecksum() {
-  std::string indexFileData = file_io::readFile(".dit/index");
+  std::string indexFileData = file_utils::readFile(".dit/index");
   std::string hashedIndexFileData = hash::hashDataSHA1(indexFileData);
 
   std::ofstream index(".dit/index", std::ios::app | std::ios::binary);
@@ -32,7 +32,7 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
   std::map<std::string, FileMetadata> indexes = index_io::readIndex();
 
   for (const std::string& filename : files) {
-    std::string fileData = file_io::readFile(filename);
+    std::string fileData = file_utils::readFile(filename);
     std::string fileBlob = blob::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
     struct stat st;
