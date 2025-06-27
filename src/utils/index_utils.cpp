@@ -12,7 +12,7 @@
 #include "binary_io.h"
 #include "file_utils.h"
 
-namespace index_io {
+namespace index_utils {
   std::map<std::string, FileMetadata> readIndex() {
     std::map<std::string, FileMetadata> entries;
 

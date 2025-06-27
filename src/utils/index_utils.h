@@ -1,9 +1,9 @@
-#ifndef INDEX_IO_H
-#define INDEX_IO_H
+#ifndef INDEX_UTILS_H
+#define INDEX_UTILS_H
 
-namespace index_io {
+namespace index_utils {
   std::map<std::string, FileMetadata> readIndex();
   void writeIndex(const std::map<std::string, FileMetadata> &entries);
 }
 
-#endif // INDEX_IO_H
+#endif // INDEX_UTILS_H

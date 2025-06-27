@@ -10,7 +10,7 @@
 #include "../utils/types.h"
 #include "../utils/hash.h"
 #include "../utils/file_utils.h"
-#include "../utils/index_io.h"
+#include "../utils/index_utils.h"
 #include "../utils/blob.h"
 
 void addChecksum() {
@@ -29,7 +29,7 @@ void addChecksum() {
 }
 
 void handleAdd(const std::vector<std::string>& files, const std::vector<std::string>& flags) {
-  std::map<std::string, FileMetadata> indexes = index_io::readIndex();
+  std::map<std::string, FileMetadata> indexes = index_utils::readIndex();
 
   for (const std::string& filename : files) {
     std::string fileData = file_utils::readFile(filename);
@@ -50,6 +50,6 @@ void handleAdd(const std::vector<std::string>& files, const std::vector<std::str
     indexes[filename] = metadata;
   }
 
-  index_io::writeIndex(indexes);
+  index_utils::writeIndex(indexes);
   addChecksum();
 }

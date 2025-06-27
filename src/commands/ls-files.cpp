@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 
 #include "../utils/types.h"
-#include "../utils/index_io.h"
+#include "../utils/index_utils.h"
 #include "../utils/file_utils.h"
 
 bool hasFlag(std::vector<std::string>& flags, std::string flag) {
@@ -14,7 +14,7 @@ bool hasFlag(std::vector<std::string>& flags, std::string flag) {
 }
 
 void handleLsFiles(std::vector<std::string>& flags) {
-  std::map<std::string, FileMetadata> indexes = index_io::readIndex();
+  std::map<std::string, FileMetadata> indexes = index_utils::readIndex();
   
   bool showDeleted = hasFlag(flags, "-d") || hasFlag(flags, "--deleted");
   bool showCached = hasFlag(flags, "-c") || hasFlag(flags, "--cached");
