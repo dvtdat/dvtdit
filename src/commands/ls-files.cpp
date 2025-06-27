@@ -4,24 +4,25 @@
 #include <map>
 #include <string>
 #include <sys/stat.h>
+#include <unordered_set>
 
 #include "../utils/types.h"
 #include "../utils/index_utils.h"
 #include "../utils/file_utils.h"
 
-bool hasFlag(std::vector<std::string>& flags, std::string flag) {
-  return std::find(flags.begin(), flags.end(), flag) != flags.end();
+bool hasFlag(const std::unordered_set<std::string>& flags, const std::string& flag) {
+  return flags.find(flag) != flags.end();
 }
 
-void handleLsFiles(std::vector<std::string>& flags) {
+void handleLsFiles(const Arguments& args) {
   std::map<std::string, FileMetadata> indexes = index_utils::readIndex();
   
-  bool showDeleted = hasFlag(flags, "-d") || hasFlag(flags, "--deleted");
-  bool showCached = hasFlag(flags, "-c") || hasFlag(flags, "--cached");
-  bool showModified = hasFlag(flags, "-m") || hasFlag(flags, "--modified");
-  bool showStage = hasFlag(flags, "-s") || hasFlag(flags, "--stage");
+  bool showDeleted = hasFlag(args.flags, "-d") || hasFlag(args.flags, "--deleted");
+  bool showCached = hasFlag(args.flags, "-c") || hasFlag(args.flags, "--cached");
+  bool showModified = hasFlag(args.flags, "-m") || hasFlag(args.flags, "--modified");
+  bool showStage = hasFlag(args.flags, "-s") || hasFlag(args.flags, "--stage");
 
-  if (flags.empty() || (!showDeleted && !showModified)) {
+  if (args.flags.empty() || (!showDeleted && !showModified)) {
     showCached = true;
   }
 

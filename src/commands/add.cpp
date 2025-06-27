@@ -28,10 +28,10 @@ void addChecksum() {
   index.close();
 }
 
-void handleAdd(const std::vector<std::string>& files, const std::vector<std::string>& flags) {
+void handleAdd(const Arguments& args) {
   std::map<std::string, FileMetadata> indexes = index_utils::readIndex();
 
-  for (const std::string& filename : files) {
+  for (const std::string& filename : args.files) {
     std::string fileData = file_utils::readFile(filename);
     std::string fileBlob = blob::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);

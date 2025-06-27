@@ -65,7 +65,22 @@
     "__tree": "cpp",
     "map": "cpp",
     "forward_list": "cpp",
-    "span": "cpp"
+    "span": "cpp",
+    "codecvt": "cpp",
+    "condition_variable": "cpp",
+    "semaphore": "cpp",
+    "atomic": "cpp",
+    "bit": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "exception": "cpp",
+    "iterator": "cpp",
+    "memory_resource": "cpp",
+    "random": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp",
+    "cinttypes": "cpp",
+    "unordered_set": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
