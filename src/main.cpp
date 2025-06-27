@@ -10,6 +10,7 @@
 void handleInit();
 void handleAdd(const Arguments& args);
 void handleLsFiles(const Arguments& args);
+void handleCommit(const Arguments& args);
 
 std::unordered_map<std::string, std::unordered_set<std::string>> FLAGS_WITH_VALUES = {
   {
@@ -100,7 +101,7 @@ int main(int argc, char *argv[]) {
   } else if (args.command == "ls-files") {
     handleLsFiles(args);
   } else if (args.command == "commit") {
-    //
+    handleCommit(args);
   } else {
     std::cerr << "Unknown command: " << args.command << "\n";
     std::cerr << "Run 'dit help' for a list of commands.\n";
