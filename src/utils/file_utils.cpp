@@ -6,10 +6,13 @@
 
 #include "file_utils.h"
 #include "types.h"
-#include "blob.h"
 #include "hash.h"
 
 namespace file_utils {
+  std::string convertToBlob(std::string data) {
+    return "blob " + std::to_string(data.size()) + '\0' + data;
+  }
+
   std::string readFile(const std::string& path) {
     std::ifstream in(path, std::ios::binary);
     std::ostringstream contents;
@@ -24,7 +27,7 @@ namespace file_utils {
 
   bool isFileContentModified(const FileMetadata& existingEntry) {
     std::string fileData = file_utils::readFile(existingEntry.path);
-    std::string fileBlob = blob::convertToBlob(fileData);
+    std::string fileBlob = file_utils::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
 
     return hashedData != existingEntry.sha1;

@@ -11,7 +11,6 @@
 #include "../utils/hash.h"
 #include "../utils/file_utils.h"
 #include "../utils/index_utils.h"
-#include "../utils/blob.h"
 
 void addChecksum() {
   std::string indexFileData = file_utils::readFile(".dit/index");
@@ -33,7 +32,7 @@ void handleAdd(const Arguments& args) {
 
   for (const std::string& filename : args.files) {
     std::string fileData = file_utils::readFile(filename);
-    std::string fileBlob = blob::convertToBlob(fileData);
+    std::string fileBlob = file_utils::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
     struct stat st;
     stat(filename.c_str(), &st);

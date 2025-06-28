@@ -12,7 +12,6 @@
 #include "../utils/hash.h"
 #include "../utils/file_utils.h"
 #include "../utils/index_utils.h"
-#include "../utils/blob.h"
 
 void handleCommit(const Arguments& args) {
   std::map<std::string, FileMetadata> indexes = index_utils::readIndex();
@@ -38,7 +37,7 @@ void handleCommit(const Arguments& args) {
     const FileMetadata& metadata = it->second;
 
     std::string fileData = file_utils::readFile(filename);
-    std::string fileBlob = blob::convertToBlob(fileData);
+    std::string fileBlob = file_utils::convertToBlob(fileData);
     std::string hashedData = hash::hashDataSHA1(fileBlob);
 
     std::string objectDirectory = ".dit/objects/" + hashedData.substr(0, 2);

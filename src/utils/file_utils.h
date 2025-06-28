@@ -4,6 +4,7 @@
 #include "types.h"
 
 namespace file_utils {
+  std::string convertToBlob(std::string data);
   std::string readFile(const std::string &path);
   bool isFileExisted(const std::string &path);
   bool isFileContentModified(const FileMetadata &existingEntry);
